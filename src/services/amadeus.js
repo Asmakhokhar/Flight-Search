@@ -9,8 +9,8 @@ export const getToken = async () => {
     "/v1/security/oauth2/token",
     new URLSearchParams({
       grant_type: "client_credentials",
-      client_id: import.meta.env.VITE_AMADEUS_CLIENT_ID,
-      client_secret: import.meta.env.VITE_AMADEUS_CLIENT_SECRET,
+      client_id: import.meta.env.VITE_AMADEUS_API_KEY,
+      client_secret: import.meta.env.VITE_AMADEUS_API_SECRET,
     }),
     { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
   );
@@ -18,14 +18,23 @@ export const getToken = async () => {
   return res.data.access_token;
 };
 
-export const searchFlights = async (token, origin, maxPrice) => {
+
+// Search flights between two airports using Flight Offers Search
+export const searchFlights = async (token, origin, destination, departureDate, returnDate, adults = 1, max = 10) => {
+  const params = {
+    originLocationCode: origin,
+    destinationLocationCode: destination,
+    departureDate,
+    adults,
+    max,
+  };
+  if (returnDate) params.returnDate = returnDate;
   const res = await API.get(
-    `/v1/shopping/flight-destinations`,
+    `/v2/shopping/flight-offers`,
     {
       headers: { Authorization: `Bearer ${token}` },
-      params: { origin, maxPrice },
+      params,
     }
   );
-
   return res.data.data;
 };

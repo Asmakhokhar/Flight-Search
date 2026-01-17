@@ -5,8 +5,8 @@ import { useState } from "react";
 export default function Filters({ onSearch }) {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
-
-  
+  const [departure, setDeparture] = useState("");
+  const [returnDate, setReturnDate] = useState("");
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-5xl">
@@ -22,7 +22,6 @@ export default function Filters({ onSearch }) {
             className="h-12 px-4 rounded-md border border-gray-300 bg-white text-gray-900 placeholder-gray-400 outline-none"
           />
         </div>
-
         {/* TO */}
         <div className="flex flex-col">
           <label className="text-xs text-gray-500 mb-1">To</label>
@@ -34,29 +33,32 @@ export default function Filters({ onSearch }) {
             className="h-12 px-4 rounded-md border border-gray-300 bg-white text-gray-900 placeholder-gray-400 outline-none"
           />
         </div>
-
         {/* DEPARTURE */}
         <div className="flex flex-col">
           <label className="text-xs text-gray-500 mb-1">Departure</label>
           <input
             type="date"
+            value={departure}
+            onChange={(e) => setDeparture(e.target.value)}
             className="h-12 px-4 rounded-md border border-gray-300 bg-white text-gray-900 placeholder-gray-400 outline-none"
           />
         </div>
-
         {/* RETURN */}
         <div className="flex flex-col">
           <label className="text-xs text-gray-500 mb-1">Return</label>
           <input
             type="date"
+            value={returnDate}
+            onChange={(e) => setReturnDate(e.target.value)}
             className="h-12 px-4 rounded-md border border-gray-300 bg-white text-gray-900 placeholder-gray-400 outline-none"
           />
         </div>
-
         {/* SEARCH BUTTON */}
         <div>
           <Button
-            onClick={onSearch}
+            onClick={() =>
+              onSearch({ origin, destination, departure, returnDate })
+            }
             className="w-full h-12 flex items-center justify-center gap-2 cursor-pointer"
           >
             <Search size={16} />
