@@ -73,7 +73,7 @@ export default function Home() {
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* FILTERS */}
-      <div className="p-6">
+      {/* <div className="p-6">
         <Filters
           origin={origin}
           setOrigin={setOrigin}
@@ -85,7 +85,7 @@ export default function Home() {
           setReturnDate={setReturnDate}
           onSearch={handleSearch}
         />
-      </div>
+      </div> */}
 
       {/* ERROR MESSAGE */}
       {error && <div className="text-red-500 p-4">{error}</div>}
