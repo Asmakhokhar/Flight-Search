@@ -2,7 +2,7 @@ import { Search } from "lucide-react";
 import Button from "./ui/Button";
 import { useState } from "react";
 
-export default function Filters({ onSearch }) {
+export default function Filters({ onSearch, loading }) {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [departure, setDeparture] = useState("");
@@ -59,10 +59,15 @@ export default function Filters({ onSearch }) {
             onClick={() =>
               onSearch({ origin, destination, departure, returnDate })
             }
-            className="w-full h-12 flex items-center justify-center gap-2 cursor-pointer"
+            className={`w-full h-12 flex items-center justify-center gap-2 cursor-pointer ${loading ? 'opacity-60 pointer-events-none' : ''}`}
+            disabled={loading}
           >
-            <Search size={16} />
-            <span>Search</span>
+            {loading ? (
+              <span className="animate-spin h-5 w-5 border-2 border-t-2 border-gray-300 border-t-blue-600 rounded-full mr-2"></span>
+            ) : (
+              <Search size={16} />
+            )}
+            <span>{loading ? 'Searching...' : 'Search'}</span>
           </Button>
         </div>
       </div>

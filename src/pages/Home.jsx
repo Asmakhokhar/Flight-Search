@@ -4,8 +4,13 @@ import Header from "../components/header";
 import FlightList from "../components/flights/FlightsList";
 import FlightDetailsModal from "../components/flights/FlightDetailsModal";
 import { getToken, searchFlights } from "../services/amadeus";
+import PriceGraph from "../components/ui/PriceGraph";
 
 export default function Home() {
+    // Complex filter states
+    const [stops, setStops] = useState("");
+    const [price, setPrice] = useState(2000);
+    const [airline, setAirline] = useState("");
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [departure, setDeparture] = useState("");
@@ -56,15 +61,52 @@ export default function Home() {
     }
   };
 
+  // Filter results based on stops, price, airline
+  const filteredResults = results.filter((flight) => {
+    // Stops
+    const stopsCount = flight.itineraries?.[0]?.segments?.length - 1;
+    if (
+      stops !== "" &&
+      String(stopsCount) !== stops &&
+      !(stops === "2" && stopsCount > 1)
+    )
+      return false;
+    // Price
+    if (price && flight.price?.total && Number(flight.price.total) > price)
+      return false;
+    // Airline
+    if (airline && flight.itineraries?.[0]?.segments?.[0]?.carrierCode !== airline)
+      return false;
+    return true;
+  });
+
   return (
     <>
       <Header
         onMenuClick={() => setSidebarOpen(true)}
         origin={origin}
         setOrigin={setOrigin}
-        maxPrice={maxPrice}
-        setMaxPrice={setMaxPrice}
+        stops={stops}
+        setStops={setStops}
+        price={price}
+        setPrice={setPrice}
+        airline={airline}
+        setAirline={setAirline}
         onSearch={handleSearch}
+        airlines={Array.from(
+          new Set(
+            results
+              .map((f) =>
+                f.itineraries?.[0]?.segments?.[0]?.carrierCode
+                  ? {
+                      code: f.itineraries[0].segments[0].carrierCode,
+                      name: f.itineraries[0].segments[0].carrierCode,
+                    }
+                  : null,
+              )
+              .filter(Boolean),
+          ),
+        )}
       />
 
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
@@ -72,10 +114,13 @@ export default function Home() {
       {/* ERROR MESSAGE */}
       {error && <div className="text-red-500 p-4">{error}</div>}
 
-      {/* RESULTS */}
+      {/* PRICE GRAPH & RESULTS */}
       <div className="p-6">
+        {hasSearched && filteredResults.length > 0 && (
+          <PriceGraph data={filteredResults} />
+        )}
         <FlightList
-          results={results}
+          results={filteredResults}
           loading={loading}
           hasSearched={hasSearched}
           onViewDetails={setSelectedFlight}
