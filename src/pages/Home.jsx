@@ -4,7 +4,7 @@ import Header from "../components/header";
 import FlightList from "../components/flights/FlightsList";
 import FlightDetailsModal from "../components/flights/FlightDetailsModal";
 import { getToken, searchFlights } from "../services/amadeus";
-import Filters from "../components/filter";
+
 export default function Home() {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
@@ -17,9 +17,6 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [selectedFlight, setSelectedFlight] = useState(null);
-
-  // Optionally, fetch airlines from API here with useEffect
-  // useEffect(() => { ... }, []);
 
   const handleSearch = async ({ origin: o, destination: d, departure: dep, returnDate: ret }) => {
     const origin = o.trim().toUpperCase();
@@ -71,21 +68,6 @@ export default function Home() {
       />
 
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      {/* FILTERS */}
-      {/* <div className="p-6">
-        <Filters
-          origin={origin}
-          setOrigin={setOrigin}
-          destination={destination}
-          setDestination={setDestination}
-          departure={departure}
-          setDeparture={setDeparture}
-          returnDate={returnDate}
-          setReturnDate={setReturnDate}
-          onSearch={handleSearch}
-        />
-      </div> */}
 
       {/* ERROR MESSAGE */}
       {error && <div className="text-red-500 p-4">{error}</div>}
