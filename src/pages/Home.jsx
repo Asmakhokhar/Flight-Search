@@ -1,16 +1,20 @@
 import Sidebar from "../components/sidebar";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Header from "../components/header";
 import FlightList from "../components/flights/FlightsList";
 import FlightDetailsModal from "../components/flights/FlightDetailsModal";
 import { getToken, searchFlights } from "../services/amadeus";
 import PriceGraph from "../components/ui/PriceGraph";
+import LandingHero from "../components/LandingHero";
+import PopularCountries from "../components/PopularCountries";
 
 export default function Home() {
-    // Complex filter states
-    const [stops, setStops] = useState("");
-    const [price, setPrice] = useState(2000);
-    const [airline, setAirline] = useState("");
+  // For demo: store recent searches in state (could use localStorage for persistence)
+  const [recentSearches, setRecentSearches] = useState([]);
+
+  const [stops, setStops] = useState("");
+  const [price, setPrice] = useState(2000);
+  const [airline, setAirline] = useState("");
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [departure, setDeparture] = useState("");
@@ -23,7 +27,12 @@ export default function Home() {
   const [hasSearched, setHasSearched] = useState(false);
   const [selectedFlight, setSelectedFlight] = useState(null);
 
-  const handleSearch = async ({ origin: o, destination: d, departure: dep, returnDate: ret }) => {
+  const handleSearch = async ({
+    origin: o,
+    destination: d,
+    departure: dep,
+    returnDate: ret,
+  }) => {
     const origin = o.trim().toUpperCase();
     const destination = d.trim().toUpperCase();
     if (!origin) {
@@ -42,6 +51,10 @@ export default function Home() {
     setDestination(destination);
     setDeparture(dep);
     setReturnDate(ret);
+    setRecentSearches((prev) => [
+      { origin, destination },
+      ...prev.filter(s => s.origin !== origin || s.destination !== destination)
+    ].slice(0, 5));
     setLoading(true);
     setHasSearched(true);
     setError("");
@@ -52,8 +65,8 @@ export default function Home() {
     } catch (err) {
       setError(
         err?.response?.data?.error_description ||
-        err?.response?.data?.message ||
-        "No flights found or server error."
+          err?.response?.data?.message ||
+          "No flights found or server error.",
       );
       setResults([]);
     } finally {
@@ -61,7 +74,7 @@ export default function Home() {
     }
   };
 
-  // Filter results based on stops, price, airline
+  
   const filteredResults = results.filter((flight) => {
     // Stops
     const stopsCount = flight.itineraries?.[0]?.segments?.length - 1;
@@ -71,11 +84,14 @@ export default function Home() {
       !(stops === "2" && stopsCount > 1)
     )
       return false;
-    // Price
+    
     if (price && flight.price?.total && Number(flight.price.total) > price)
       return false;
-    // Airline
-    if (airline && flight.itineraries?.[0]?.segments?.[0]?.carrierCode !== airline)
+   
+    if (
+      airline &&
+      flight.itineraries?.[0]?.segments?.[0]?.carrierCode !== airline
+    )
       return false;
     return true;
   });
@@ -111,22 +127,43 @@ export default function Home() {
 
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
+      {/* LANDING UI */}
+      {!hasSearched && (
+        <div className="p-6">
+          <LandingHero
+            recentSearches={recentSearches}
+            onSuggestionClick={({ origin, destination }) => {
+              setOrigin(origin);
+              setDestination(destination);
+            }}
+          />
+          <PopularCountries />
+        </div>
+      )}
+
       {/* ERROR MESSAGE */}
       {error && <div className="text-red-500 p-4">{error}</div>}
 
       {/* PRICE GRAPH & RESULTS */}
-      <div className="p-6">
-        {hasSearched && filteredResults.length > 0 && (
-          <PriceGraph data={filteredResults} />
-        )}
-        <FlightList
-          results={filteredResults}
-          loading={loading}
-          hasSearched={hasSearched}
-          onViewDetails={setSelectedFlight}
-        />
-      </div>
-      <FlightDetailsModal open={!!selectedFlight} onClose={() => setSelectedFlight(null)} flight={selectedFlight} />
+      {hasSearched && (
+        <div className="p-6">
+          {filteredResults.length > 0 && <>
+            <h2 className="text-xl font-bold mb-2">Results</h2>
+            <PriceGraph data={filteredResults} />
+          </>}
+          <FlightList
+            results={filteredResults}
+            loading={loading}
+            hasSearched={hasSearched}
+            onViewDetails={setSelectedFlight}
+          />
+        </div>
+      )}
+      <FlightDetailsModal
+        open={!!selectedFlight}
+        onClose={() => setSelectedFlight(null)}
+        flight={selectedFlight}
+      />
     </>
   );
 }
