@@ -1,3 +1,4 @@
+
 import Sidebar from "../components/sidebar";
 import { useState } from "react";
 import Header from "../components/header";
@@ -7,25 +8,34 @@ import { getToken, searchFlights } from "../services/amadeus";
 import PriceGraph from "../components/ui/PriceGraph";
 import LandingHero from "../components/LandingHero";
 import PopularCountries from "../components/PopularCountries";
+import useFlightFilters from "../hooks/useFlightFilters";
+import SearchFilters from "../components/ui/SearchFilters";
+
 
 export default function Home() {
-  // For demo: store recent searches in state (could use localStorage for persistence)
   const [recentSearches, setRecentSearches] = useState([]);
-
-  const [stops, setStops] = useState("");
-  const [price, setPrice] = useState(2000);
-  const [airline, setAirline] = useState("");
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [departure, setDeparture] = useState("");
   const [returnDate, setReturnDate] = useState("");
-  const [maxPrice, setMaxPrice] = useState(200);
   const [error, setError] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [selectedFlight, setSelectedFlight] = useState(null);
+
+  // Airlines list for filter dropdown
+  const airlinesList = Array.from(
+    new Set(
+      results
+        .map((f) => f.itineraries?.[0]?.segments?.[0]?.carrierCode)
+        .filter(Boolean)
+    )
+  );
+
+  // Use custom filter hook
+  const { filters, updateFilter, filteredFlights } = useFlightFilters(results);
 
   const handleSearch = async ({
     origin: o,
@@ -66,7 +76,7 @@ export default function Home() {
       setError(
         err?.response?.data?.error_description ||
           err?.response?.data?.message ||
-          "No flights found or server error.",
+          "No flights found or server error."
       );
       setResults([]);
     } finally {
@@ -75,26 +85,7 @@ export default function Home() {
   };
 
   
-  const filteredResults = results.filter((flight) => {
-    // Stops
-    const stopsCount = flight.itineraries?.[0]?.segments?.length - 1;
-    if (
-      stops !== "" &&
-      String(stopsCount) !== stops &&
-      !(stops === "2" && stopsCount > 1)
-    )
-      return false;
-    
-    if (price && flight.price?.total && Number(flight.price.total) > price)
-      return false;
-   
-    if (
-      airline &&
-      flight.itineraries?.[0]?.segments?.[0]?.carrierCode !== airline
-    )
-      return false;
-    return true;
-  });
+
 
   return (
     <>
@@ -102,27 +93,7 @@ export default function Home() {
         onMenuClick={() => setSidebarOpen(true)}
         origin={origin}
         setOrigin={setOrigin}
-        stops={stops}
-        setStops={setStops}
-        price={price}
-        setPrice={setPrice}
-        airline={airline}
-        setAirline={setAirline}
         onSearch={handleSearch}
-        airlines={Array.from(
-          new Set(
-            results
-              .map((f) =>
-                f.itineraries?.[0]?.segments?.[0]?.carrierCode
-                  ? {
-                      code: f.itineraries[0].segments[0].carrierCode,
-                      name: f.itineraries[0].segments[0].carrierCode,
-                    }
-                  : null,
-              )
-              .filter(Boolean),
-          ),
-        )}
       />
 
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
@@ -144,19 +115,26 @@ export default function Home() {
       {/* ERROR MESSAGE */}
       {error && <div className="text-red-500 p-4">{error}</div>}
 
-      {/* PRICE GRAPH & RESULTS */}
+      {/* FILTERS, PRICE GRAPH & RESULTS */}
       {hasSearched && (
         <div className="p-6">
-          {filteredResults.length > 0 && <>
-            <h2 className="text-xl font-bold mb-2">Results</h2>
-            <PriceGraph data={filteredResults} />
-          </>}
-          <FlightList
-            results={filteredResults}
-            loading={loading}
-            hasSearched={hasSearched}
-            onViewDetails={setSelectedFlight}
-          />
+          <div className="flex gap-6 items-start">
+            <SearchFilters filters={filters} updateFilter={updateFilter} airlinesList={airlinesList} />
+            <div className="flex-1">
+              {filteredFlights.length > 0 && <>
+                <h2 className="text-xl font-bold mb-2">Results</h2>
+                <div className="max-w-xl w-full mb-4">
+                  <PriceGraph data={filteredFlights} />
+                </div>
+              </>}
+              <FlightList
+                results={filteredFlights}
+                loading={loading}
+                hasSearched={hasSearched}
+                onViewDetails={setSelectedFlight}
+              />
+            </div>
+          </div>
         </div>
       )}
       <FlightDetailsModal

@@ -1,18 +1,28 @@
-import React from "react";
 
-export default function PriceFilter({ price, setPrice, min = 0, max = 2000 }) {
+const PriceFilter = ({ value, onChange }) => {
+  const [min, max] = value;
   return (
-    <div className="flex flex-col">
-      <label className="text-xs text-gray-500 mb-1">Max Price</label>
+    <div className="flex items-center gap-2">
       <input
-        type="range"
-        min={min}
+        type="number"
+        value={min}
+        min={0}
         max={max}
-        value={price}
-        onChange={(e) => setPrice(Number(e.target.value))}
-        className="w-full"
+        onChange={e => onChange([Number(e.target.value), max])}
+        className="w-16 border border-gray-300 rounded px-2 py-1 text-sm focus:border-blue-500 focus:outline-none"
+        placeholder="Min"
       />
-      <span className="text-xs mt-1">Up to ${price}</span>
+      <span className="text-gray-400">-</span>
+      <input
+        type="number"
+        value={max}
+        min={min}
+        onChange={e => onChange([min, Number(e.target.value)])}
+        className="w-16 border border-gray-300 rounded px-2 py-1 text-sm focus:border-blue-500 focus:outline-none"
+        placeholder="Max"
+      />
     </div>
   );
-}
+};
+
+export default PriceFilter;

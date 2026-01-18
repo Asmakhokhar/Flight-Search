@@ -1,19 +1,30 @@
-import React from "react";
 
-export default function StopsFilter({ stops, setStops }) {
-  return (
-    <div className="flex flex-col">
-      <label className="text-xs text-gray-500 mb-1">Stops</label>
-      <select
-        value={stops}
-        onChange={(e) => setStops(e.target.value)}
-        className="h-12 px-4 rounded-md border border-gray-300 bg-white text-gray-900 outline-none"
-      >
-        <option value="">Any</option>
-        <option value="0">Non-stop</option>
-        <option value="1">1 Stop</option>
-        <option value="2">2+ Stops</option>
-      </select>
+const stopsOptions = [
+  { label: "Any", value: null },
+  { label: "Non-stop", value: 0 },
+  { label: "1 Stop", value: 1 },
+  { label: "2+ Stops", value: 2 },
+];
+
+const StopsFilter = ({ value, onChange }) => (
+  <div className="flex flex-col gap-1">
+    <div className="flex gap-2">
+      {stopsOptions.map(opt => (
+        <button
+          key={opt.label}
+          type="button"
+          onClick={() => onChange(opt.value)}
+          className={`px-3 py-1 rounded-full border text-sm transition-all
+            ${value === opt.value || (opt.value === null && value == null)
+              ? 'bg-blue-600 text-white border-blue-600 shadow'
+              : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-50'}
+          `}
+        >
+          {opt.label}
+        </button>
+      ))}
     </div>
-  );
-}
+  </div>
+);
+
+export default StopsFilter;
