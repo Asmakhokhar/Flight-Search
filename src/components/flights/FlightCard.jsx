@@ -12,21 +12,74 @@ export default function FlightCard({ data, onViewDetails }) {
   const arrivalDate = lastSegment?.arrival?.at?.slice(0, 10);
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 flex flex-col gap-3 border border-gray-100 hover:shadow-xl transition">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-xl font-bold text-gray-900">
+    <div
+      className="
+      bg-white rounded-2xl shadow-lg border border-gray-100
+      p-4 sm:p-5 md:p-6
+      flex flex-col gap-3
+      hover:shadow-xl transition
+    "
+    >
+      {/* TOP ROW */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <h3 className="text-lg sm:text-xl font-bold text-gray-900">
           {from} <span className="text-gray-400">→</span> {to}
         </h3>
-        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-semibold">{airline}</span>
+
+        <span
+          className="
+          text-xs bg-blue-100 text-blue-700
+          px-2 py-1 rounded-full font-semibold
+          w-fit
+        "
+        >
+          {airline}
+        </span>
       </div>
-      <div className="flex items-center justify-between text-sm text-gray-600">
-        <span>Depart: <b>{departureDate}</b></span>
-        <span>Arrive: <b>{arrivalDate}</b></span>
+
+      {/* DATES */}
+      <div
+        className="
+        flex flex-col sm:flex-row
+        sm:items-center sm:justify-between
+        text-sm text-gray-600 gap-1
+      "
+      >
+        <span>
+          Depart: <b>{departureDate}</b>
+        </span>
+        <span>
+          Arrive: <b>{arrivalDate}</b>
+        </span>
       </div>
-      <div className="flex items-center justify-between mt-2">
-        <span className="text-2xl font-bold text-blue-700">{currency}{price}</span>
+
+      {/* PRICE + BUTTON */}
+      <div
+        className="
+    flex flex-col
+    sm:flex-row
+    sm:flex-wrap
+    sm:items-center
+    sm:justify-between
+    gap-3 mt-2
+  "
+      >
+        <span className="text-xl md:text-2xl font-bold text-blue-700">
+          {currency}
+          {price}
+        </span>
+
         <button
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition text-sm font-semibold"
+          className="
+      w-full
+      sm:w-auto
+      max-w-full
+      px-4 py-2
+      bg-blue-600 text-white rounded-lg shadow
+      hover:bg-blue-700 transition
+      text-sm font-semibold
+      whitespace-nowrap
+    "
           onClick={() => onViewDetails?.(data)}
         >
           View Details

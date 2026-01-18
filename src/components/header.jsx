@@ -7,11 +7,11 @@ export default function Header({
   setOrigin,
   maxPrice,
   setMaxPrice,
-  onSearch
+  onSearch,
 }) {
   return (
     <header
-      className="relative h-[80vh] text-white"
+      className="relative h-[80vh] text-white w-full overflow-x-hidden"
       style={{
         backgroundImage: "url(/images/bg-1.jpg)",
         backgroundSize: "cover",

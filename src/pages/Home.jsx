@@ -1,4 +1,3 @@
-
 import Sidebar from "../components/sidebar";
 import { useState } from "react";
 import Header from "../components/header";
@@ -10,7 +9,6 @@ import LandingHero from "../components/LandingHero";
 import PopularCountries from "../components/PopularCountries";
 import useFlightFilters from "../hooks/useFlightFilters";
 import SearchFilters from "../components/ui/SearchFilters";
-
 
 export default function Home() {
   const [recentSearches, setRecentSearches] = useState([]);
@@ -30,8 +28,8 @@ export default function Home() {
     new Set(
       results
         .map((f) => f.itineraries?.[0]?.segments?.[0]?.carrierCode)
-        .filter(Boolean)
-    )
+        .filter(Boolean),
+    ),
   );
 
   // Use custom filter hook
@@ -61,10 +59,14 @@ export default function Home() {
     setDestination(destination);
     setDeparture(dep);
     setReturnDate(ret);
-    setRecentSearches((prev) => [
-      { origin, destination },
-      ...prev.filter(s => s.origin !== origin || s.destination !== destination)
-    ].slice(0, 5));
+    setRecentSearches((prev) =>
+      [
+        { origin, destination },
+        ...prev.filter(
+          (s) => s.origin !== origin || s.destination !== destination,
+        ),
+      ].slice(0, 5),
+    );
     setLoading(true);
     setHasSearched(true);
     setError("");
@@ -76,16 +78,13 @@ export default function Home() {
       setError(
         err?.response?.data?.error_description ||
           err?.response?.data?.message ||
-          "No flights found or server error."
+          "No flights found or server error.",
       );
       setResults([]);
     } finally {
       setLoading(false);
     }
   };
-
-  
-
 
   return (
     <>
@@ -117,16 +116,28 @@ export default function Home() {
 
       {/* FILTERS, PRICE GRAPH & RESULTS */}
       {hasSearched && (
-        <div className="p-6">
-          <div className="flex gap-6 items-start">
-            <SearchFilters filters={filters} updateFilter={updateFilter} airlinesList={airlinesList} />
-            <div className="flex-1">
-              {filteredFlights.length > 0 && <>
-                <h2 className="text-xl font-bold mb-2">Results</h2>
-                <div className="max-w-xl w-full mb-4">
-                  <PriceGraph data={filteredFlights} />
-                </div>
-              </>}
+        <div className="p-2 sm:p-4 md:p-6 w-full overflow-x-hidden">
+          <div className="flex flex-col md:flex-row md:flex-wrap md:gap-6 gap-4 items-stretch md:items-start w-full max-w-full">
+            <div className="md:sticky md:top-24 md:self-start flex-shrink-0">
+              <SearchFilters
+                filters={filters}
+                updateFilter={updateFilter}
+                airlinesList={airlinesList}
+              />
+            </div>
+            <div className="flex-1 flex flex-col w-full">
+              {filteredFlights.length > 0 && (
+                <>
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
+                    <h2 className="text-xl font-bold">Results</h2>
+                    <div
+                      className="w-full md:max-w-[520px] lg:max-w-[600px] xl:max-w-[700px] max-w-full"
+                    >
+                      <PriceGraph data={filteredFlights} />
+                    </div>
+                  </div>
+                </>
+              )}
               <FlightList
                 results={filteredFlights}
                 loading={loading}
